@@ -1,5 +1,5 @@
 name: solectricity_app
-description: "A Solar Electricity Calculator app based on BCSIR formulas."
+description: "A Solar Electricity Calculator app based on BCSIR and SREDA formulas."
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  sensors_plus: ^6.1.1
+  flutter_compass: ^0.8.1
 
 dev_dependencies:
   flutter_test:
@@ -20,6 +22,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # এসেট ও ছবির ফোল্ডার রেজিস্টার করা
+  # এসেট ও ছবির ফোল্ডার
   assets:
     - assets/images/

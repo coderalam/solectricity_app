@@ -46,4 +46,4 @@ class ApplianceModel {
       isAc: isAc ?? this.isAc,
     );
   }
-}R
+}

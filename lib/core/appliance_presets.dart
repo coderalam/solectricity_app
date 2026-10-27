@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// প্রতিটি প্রিসেট সরঞ্জামের মডেল
 class PresetItem {
   final String id;
   final String nameBn;
@@ -23,24 +22,24 @@ class PresetItem {
   });
 }
 
-/// পুরোনো BCSIR এবং আধুনিক গৃহস্থালি বিদ্যুতের সমন্বয়ে তৈরি সমৃদ্ধ তালিকা
 class AppliancePresets {
-  // সকল ক্যাটাগরি
-  static const List<String> categories = [
-    'Light',
-    'Fan',
-    'Television',
-    'Refrigerator',
-    'Air Cooler',
-    'Computer',
-    'Cooker',
-    'Blender',
-    'Oven',
-    'Pump',
-    'Others',
+  // সকল ১২টি মূল ক্যাটাগরি
+  static const List<Map<String, dynamic>> categories = [
+    {'key': 'Light', 'name': 'লাইট', 'icon': Icons.lightbulb_outline},
+    {'key': 'Fan', 'name': 'ফ্যান', 'icon': Icons.mode_fan_off_outlined},
+    {'key': 'Television', 'name': 'টিভি', 'icon': Icons.tv},
+    {'key': 'Refrigerator', 'name': 'ফ্রিজ', 'icon': Icons.kitchen},
+    {'key': 'Air Cooler', 'name': 'এসি / কুলার', 'icon': Icons.severe_cold},
+    {'key': 'Computer', 'name': 'কম্পিউটার', 'icon': Icons.computer},
+    {'key': 'Laptop', 'name': 'ল্যাপটপ', 'icon': Icons.laptop_chromebook},
+    {'key': 'Printer', 'name': 'প্রিন্টার', 'icon': Icons.print},
+    {'key': 'Cooker', 'name': 'কুকার', 'icon': Icons.soup_kitchen},
+    {'key': 'Oven', 'name': 'ওভেন', 'icon': Icons.microwave},
+    {'key': 'Blender', 'name': 'ব্লেন্ডার', 'icon': Icons.blender},
+    {'key': 'Pump', 'name': 'পানির পাম্প', 'icon': Icons.water_drop},
+    {'key': 'Others', 'name': 'অন্যান্য', 'icon': Icons.devices_other},
   ];
 
-  // বিস্তারিত সরঞ্জামের তালিকা
   static const List<PresetItem> items = [
     // --- লাইট (Light) ---
     PresetItem(
@@ -147,7 +146,7 @@ class AppliancePresets {
       nameEn: 'Inverter Refrigerator',
       category: 'Refrigerator',
       defaultWatt: 120,
-      defaultHours: 12, // কম্প্রেসর চলার গড় সময়
+      defaultHours: 12,
       icon: Icons.kitchen,
     ),
     PresetItem(
@@ -169,7 +168,7 @@ class AppliancePresets {
       icon: Icons.ac_unit,
     ),
 
-    // --- এয়ারকুলার ও এসি (Air Cooler & AC) ---
+    // --- এসি ও এয়ারকুলার (Air Cooler & AC) ---
     PresetItem(
       id: 'air_cooler',
       nameBn: 'এয়ার কুলার',
@@ -189,36 +188,67 @@ class AppliancePresets {
       icon: Icons.severe_cold,
     ),
 
-    // --- কম্পিউটার ও ল্যাপটপ ---
-    PresetItem(
-      id: 'laptop',
-      nameBn: 'ল্যাপটপ',
-      nameEn: 'Laptop',
-      category: 'Computer',
-      defaultWatt: 65,
-      defaultHours: 5,
-      icon: Icons.laptop_chromebook,
-    ),
+    // --- কম্পিউটার (Computer) ---
     PresetItem(
       id: 'desktop_pc',
       nameBn: 'ডেস্কটপ কম্পিউটার',
       nameEn: 'Desktop Computer',
       category: 'Computer',
       defaultWatt: 150,
-      defaultHours: 5,
+      defaultHours: 6,
       icon: Icons.computer,
     ),
-
-    // --- কিচেন ও অন্যান্য ---
     PresetItem(
-      id: 'blender',
-      nameBn: 'ব্লেন্ডার / মিক্সার',
-      nameEn: 'Blender / Mixer',
-      category: 'Blender',
-      defaultWatt: 500,
-      defaultHours: 0.5,
-      icon: Icons.blender,
+      id: 'gaming_pc',
+      nameBn: 'গেমিং পিসি',
+      nameEn: 'Gaming PC',
+      category: 'Computer',
+      defaultWatt: 350,
+      defaultHours: 4,
+      icon: Icons.sports_esports,
     ),
+
+    // --- ল্যাপটপ (Laptop) ---
+    PresetItem(
+      id: 'laptop_standard',
+      nameBn: 'সাধারণ ল্যাপটপ',
+      nameEn: 'Laptop',
+      category: 'Laptop',
+      defaultWatt: 65,
+      defaultHours: 6,
+      icon: Icons.laptop_chromebook,
+    ),
+    PresetItem(
+      id: 'tablet_device',
+      nameBn: 'ট্যাবলেট',
+      nameEn: 'Tablet',
+      category: 'Laptop',
+      defaultWatt: 25,
+      defaultHours: 4,
+      icon: Icons.tablet_mac,
+    ),
+
+    // --- প্রিন্টার (Printer) ---
+    PresetItem(
+      id: 'printer_inkjet',
+      nameBn: 'ইঙ্কজেট প্রিন্টার',
+      nameEn: 'Inkjet Printer',
+      category: 'Printer',
+      defaultWatt: 30,
+      defaultHours: 1,
+      icon: Icons.print,
+    ),
+    PresetItem(
+      id: 'printer_laser',
+      nameBn: 'লেজার প্রিন্টার',
+      nameEn: 'Laser Printer',
+      category: 'Printer',
+      defaultWatt: 300,
+      defaultHours: 0.5,
+      icon: Icons.print_outlined,
+    ),
+
+    // --- কুকার (Cooker) ---
     PresetItem(
       id: 'induction_cooker',
       nameBn: 'ইন্ডাকশন কুকার',
@@ -229,6 +259,57 @@ class AppliancePresets {
       icon: Icons.soup_kitchen,
     ),
     PresetItem(
+      id: 'electric_cooker',
+      nameBn: 'রাইস কুকার / ইলেকট্রিক কুকার',
+      nameEn: 'Rice Cooker',
+      category: 'Cooker',
+      defaultWatt: 700,
+      defaultHours: 1.0,
+      icon: Icons.rice_bowl,
+    ),
+
+    // --- ওভেন (Oven) - [ফিক্স করা হলো!] ---
+    PresetItem(
+      id: 'oven_microwave',
+      nameBn: 'মাইক্রোওয়েভ ওভেন',
+      nameEn: 'Microwave Oven',
+      category: 'Oven',
+      defaultWatt: 1200,
+      defaultHours: 0.5,
+      icon: Icons.microwave,
+    ),
+    PresetItem(
+      id: 'oven_electric',
+      nameBn: 'ইলেকট্রিক ওভেন (বেকিং)',
+      nameEn: 'Electric Oven',
+      category: 'Oven',
+      defaultWatt: 1500,
+      defaultHours: 0.5,
+      icon: Icons.wb_shade,
+    ),
+
+    // --- ব্লেন্ডার (Blender) ---
+    PresetItem(
+      id: 'blender_mixer',
+      nameBn: 'ব্লেন্ডার ও মিক্সার',
+      nameEn: 'Blender & Mixer',
+      category: 'Blender',
+      defaultWatt: 500,
+      defaultHours: 0.5,
+      icon: Icons.blender,
+    ),
+    PresetItem(
+      id: 'blender_grinder',
+      nameBn: 'গ্রাইন্ডার / মশলা পেষা',
+      nameEn: 'Grinder',
+      category: 'Blender',
+      defaultWatt: 750,
+      defaultHours: 0.25,
+      icon: Icons.grain,
+    ),
+
+    // --- পানির পাম্প (Pump) ---
+    PresetItem(
       id: 'water_pump_half_hp',
       nameBn: '০.৫ ঘোড়া পানির মোটর',
       nameEn: '0.5 HP Water Pump',
@@ -238,12 +319,23 @@ class AppliancePresets {
       icon: Icons.water_drop,
     ),
     PresetItem(
+      id: 'water_pump_1_hp',
+      nameBn: '১ ঘোড়া পানির মোটর',
+      nameEn: '1.0 HP Water Pump',
+      category: 'Pump',
+      defaultWatt: 750,
+      defaultHours: 1.0,
+      icon: Icons.water,
+    ),
+
+    // --- অন্যান্য (Others) ---
+    PresetItem(
       id: 'others_custom',
-      nameBn: 'অন্যান্য (কাস্টম)',
+      nameBn: 'অন্যান্য সরঞ্জাম (কাস্টম)',
       nameEn: 'Others (Custom)',
       category: 'Others',
       defaultWatt: 100,
-      defaultHours: 2,
+      defaultHours: 2.0,
       icon: Icons.devices_other,
     ),
   ];

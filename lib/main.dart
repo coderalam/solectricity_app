@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_shell_screen.dart';
 
 void main() {
   runApp(const SolectricityApp());
@@ -22,7 +22,7 @@ class SolectricityApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
         fontFamily: 'Roboto',
       ),
-      home: const HomeScreen(),
+      home: const MainShellScreen(),
     );
   }
 }
