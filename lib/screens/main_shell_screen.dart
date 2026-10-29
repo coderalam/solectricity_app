@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'load_selection_screen.dart';
 import 'capacity_calculator_screen.dart';
@@ -14,7 +15,6 @@ class MainShellScreen extends StatefulWidget {
 }
 
 class _MainShellScreenState extends State<MainShellScreen> {
-  // বর্তমানে নির্বাচিত মেনু ইনডেক্স
   int _selectedIndex = 0;
 
   void _onMenuTapped(int index) {
@@ -33,9 +33,12 @@ class _MainShellScreenState extends State<MainShellScreen> {
       appBar: isDesktop
           ? null
           : AppBar(
-              title: const Text(
-                'সূর্য বিদ্যুৎ (Solectricity)',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              title: InkWell(
+                onTap: () => _onMenuTapped(0),
+                child: const Text(
+                  'সূর্য বিদ্যুৎ (Solectricity)',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
               ),
               centerTitle: true,
               elevation: 0,
@@ -46,12 +49,8 @@ class _MainShellScreenState extends State<MainShellScreen> {
       body: isDesktop
           ? Row(
               children: [
-                // ১. স্লিম ও স্থায়ী কম্প্যাক্ট সাইডবার (স্ক্রল ছাড়া সম্পূর্ণ ফিট)
                 _buildCompactSidebar(),
-
                 const VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE2E8F0)),
-
-                // ২. ডান পাশের ডাইনামিক বডি (চোখের পলকে পরিবর্তন হবে)
                 Expanded(
                   child: _buildSelectedScreen(),
                 ),
@@ -61,7 +60,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
     );
   }
 
-  /// নির্বাচিত স্ক্রিন লোড করা
   Widget _buildSelectedScreen() {
     switch (_selectedIndex) {
       case 0:
@@ -76,18 +74,18 @@ class _MainShellScreenState extends State<MainShellScreen> {
         return const CostCalculatorScreen();
       case 5:
         return const FinancialCalculatorScreen();
+      // ২ নম্বর সমস্যার সমাধান: সরাসরি নির্দিষ্ট ট্যাব ওপেন করার নিখুঁত কি (Key)
       case 6:
-        return const SolarToolsScreen(initialTabIndex: 0); // কম্পাস
+        return const SolarToolsScreen(key: ValueKey('compass'), initialTabIndex: 0);
       case 7:
-        return const SolarToolsScreen(initialTabIndex: 1); // লেভেলার
+        return const SolarToolsScreen(key: ValueKey('leveler'), initialTabIndex: 1);
       case 8:
-        return const SolarToolsScreen(initialTabIndex: 2); // গাইড
+        return const SolarToolsScreen(key: ValueKey('guide'), initialTabIndex: 2);
       default:
         return _buildDashboardContent();
     }
   }
 
-  /// স্লিম, কম্প্যাক্ট সাইডবার (উইডথ ২২৫px, স্ক্রলমুক্ত)
   Widget _buildCompactSidebar() {
     return Container(
       width: 225,
@@ -95,49 +93,56 @@ class _MainShellScreenState extends State<MainShellScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // কম্প্যাক্ট স্লিম হেডার
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.amber.shade700, Colors.orange.shade800],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          // ৩ নম্বর পরিবর্তন: লোগো ও ব্র্যান্ডিং সম্পূর্ণ গ্লোবাল ক্লিকেবল লিংক (হোমে নিয়ে যাবে)
+          InkWell(
+            onTap: () => _onMenuTapped(0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.amber.shade700, Colors.orange.shade800],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.25),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    // অ্যানিমেটেড সূর্য ক্ষুদ্র সংস্করণে
+                    child: const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: SolarFusionSun(size: 24, isMini: true),
+                    ),
                   ),
-                  child: const Icon(Icons.solar_power_rounded, color: Colors.white, size: 20),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'সূর্য বিদ্যুৎ',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-                      ),
-                      Text(
-                        'BCSIR & SREDA',
-                        style: TextStyle(color: Colors.white70, fontSize: 10),
-                      ),
-                    ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'সূর্য বিদ্যুৎ',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        Text(
+                          'BCSIR & SREDA',
+                          style: TextStyle(color: Colors.white70, fontSize: 10),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
           const SizedBox(height: 8),
 
-          // নন-স্ক্রলেবল কম্প্যাক্ট মেনু তালিকা
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -206,7 +211,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
 
                   const Spacer(),
 
-                  // কম্প্যাক্ট ভেরিফায়েড ফুটার
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
@@ -244,7 +248,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
     );
   }
 
-  /// হোম ড্যাশবোর্ড কন্টেন্ট
   Widget _buildDashboardContent() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(22.0),
@@ -260,12 +263,10 @@ class _MainShellScreenState extends State<MainShellScreen> {
           ),
           const SizedBox(height: 12),
 
-          // প্রধান উপকরণভিত্তিক কার্ড (ক্লিক করলে সরাসরি ট্যাব ১-এ যাবে)
           _buildPrimaryFeatureCard(),
 
           const SizedBox(height: 18),
 
-          // স্রেডার গঠনমূলক বিবরণীযুক্ত ৪টি বিস্তারিত কার্ড
           LayoutBuilder(
             builder: (context, constraints) {
               final count = constraints.maxWidth > 700 ? 2 : 1;
@@ -321,42 +322,49 @@ class _MainShellScreenState extends State<MainShellScreen> {
     );
   }
 
+  // ১ নম্বর পরিবর্তন: ব্যানারে জীবন্ত প্রখর ফিউশন সূর্যের অ্যানিমেশন + গ্লোবাল ক্লিকেবল
   Widget _buildHeroBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.amber.shade700, Colors.orange.shade800],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.orange.withOpacity(0.25), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'ঘরের মাঝে রবির কিরণ',
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  'বাংলাদেশ বিজ্ঞান ও শিল্প গবেষণা পরিষদ (BCSIR) এবং স্রেডা (SREDA)-এর বৈজ্ঞানিক ফর্মুলা অনুযায়ী প্রস্তুতকৃত।',
-                  style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
-                ),
-              ],
-            ),
+    return InkWell(
+      onTap: () => _onMenuTapped(0), // ক্লিক করলে হোমে রিফ্রেশ হবে
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.amber.shade800, Colors.orange.shade900],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          const SizedBox(width: 14),
-          const Icon(Icons.wb_sunny_rounded, size: 52, color: Colors.white),
-        ],
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(color: Colors.orange.withOpacity(0.35), blurRadius: 14, offset: const Offset(0, 4)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'ঘরের মাঝে রবির কিরণ',
+                    style: TextStyle(color: Colors.white, fontSize: 21, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    'বাংলাদেশ বিজ্ঞান ও শিল্প গবেষণা পরিষদ (BCSIR) এবং স্রেডা (SREDA)-এর বৈজ্ঞানিক ফর্মুলা অনুযায়ী প্রস্তুতকৃত।',
+                    style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+
+            // জীবন্ত ফিউশন বিক্রিয়ার অবিরাম ঘূর্ণায়মান ও প্রজ্বলিত সূর্য
+            const SolarFusionSun(size: 70),
+          ],
+        ),
       ),
     );
   }
@@ -531,15 +539,25 @@ class _MainShellScreenState extends State<MainShellScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: [Colors.amber.shade700, Colors.orange.shade800]),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.solar_power_rounded, size: 40, color: Colors.white),
-                SizedBox(height: 8),
-                Text('সূর্য বিদ্যুৎ (Solectricity)', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
-                Text('Plug to the sun', style: TextStyle(color: Colors.white70, fontSize: 11)),
-              ],
+            child: InkWell(
+              onTap: () {
+                Navigator.pop(context);
+                _onMenuTapped(0);
+              },
+              child: Row(
+                children: [
+                  const SolarFusionSun(size: 44, isMini: true),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text('সূর্য বিদ্যুৎ', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('Plug to the sun', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           ListTile(
@@ -621,7 +639,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
   }
 }
 
-/// স্লিম কম্প্যাক্ট হোভার মেনু টাইল
+/// সাইডবার হোভার মেনু টাইল
 class _CompactMenuTile extends StatefulWidget {
   final IconData icon;
   final String title;
@@ -694,4 +712,157 @@ class _CompactMenuTileState extends State<_CompactMenuTile> {
       ),
     );
   }
+}
+
+// =========================================================================
+// ১ নম্বর মূল আকর্ষণ: প্রখর রৌদ্রের ফিউশন বিক্রিয়ার অবিরাম ধীরগতির সূর্য
+// =========================================================================
+class SolarFusionSun extends StatefulWidget {
+  final double size;
+  final bool isMini;
+
+  const SolarFusionSun({super.key, this.size = 64, this.isMini = false});
+
+  @override
+  State<SolarFusionSun> createState() => _SolarFusionSunState();
+}
+
+class _SolarFusionSunState extends State<SolarFusionSun> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // অবিরাম ধীর গতিতে ৩০ সেকেন্ডে একটি পূর্ণ ঘূর্ণন সম্পন্ন হবে
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 28),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        // সূক্ষ্ম স্পন্দন (Breathing pulse - ১.০০ থেকে ১.০৬)
+        final pulse = 1.0 + 0.06 * math.sin(_controller.value * 2 * math.pi * 3);
+
+        return Transform.scale(
+          scale: widget.isMini ? 1.0 : pulse,
+          child: SizedBox(
+            width: widget.size,
+            height: widget.size,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // ১. বাহ্যিক প্লাজমা আলো ছড়ানো রশ্মি (ধীর ঘূর্ণায়মান)
+                Transform.rotate(
+                  angle: _controller.value * 2 * math.pi,
+                  child: CustomPaint(
+                    size: Size(widget.size, widget.size),
+                    painter: _SolarRaysPainter(isMini: widget.isMini),
+                  ),
+                ),
+
+                // ২. বিপরীত দিকে ঘূর্ণায়মান অভ্যন্তরীণ করোনা মেঘ
+                Transform.rotate(
+                  angle: -_controller.value * 2 * math.pi * 0.5,
+                  child: Container(
+                    width: widget.size * 0.65,
+                    height: widget.size * 0.65,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.amber.shade200.withOpacity(0.8),
+                          Colors.orange.shade600.withOpacity(0.5),
+                          Colors.transparent,
+                        ],
+                        stops: const [0.2, 0.7, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // ৩. কেন্দ্রীয় উজ্জ্বল পারমাণবিক ফিউশন কোর (উজ্জ্বল সাদা-সোনালি আলো)
+                Container(
+                  width: widget.size * 0.45,
+                  height: widget.size * 0.45,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const RadialGradient(
+                      colors: [
+                        Colors.white,
+                        Color(0xFFFEF08A), // লেমন গোল্ড
+                        Color(0xFFF59E0B), // অ্যাম্বার
+                        Color(0xFFEA580C), // অরেঞ্জ প্লাজমা
+                      ],
+                      stops: [0.15, 0.45, 0.8, 1.0],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.amber.shade300.withOpacity(0.9),
+                        blurRadius: widget.size * 0.35,
+                        spreadRadius: widget.size * 0.08,
+                      ),
+                      BoxShadow(
+                        color: Colors.orange.shade700.withOpacity(0.6),
+                        blurRadius: widget.size * 0.5,
+                        spreadRadius: widget.size * 0.15,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// সূর্যের বহিরাংশের ফিউশন রশ্মি ও প্লাজমা আঁকার কাস্টম পেইন্টার
+class _SolarRaysPainter extends CustomPainter {
+  final bool isMini;
+  _SolarRaysPainter({this.isMini = false});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final count = isMini ? 8 : 14; // রশ্মির সংখ্যা
+    final radius = size.width / 2;
+
+    for (int i = 0; i < count; i++) {
+      final angle = (i * 2 * math.pi) / count;
+      final rayLength = (i % 2 == 0) ? radius : radius * 0.78;
+
+      final start = Offset(
+        center.dx + (size.width * 0.26) * math.cos(angle),
+        center.dy + (size.width * 0.26) * math.sin(angle),
+      );
+
+      final end = Offset(
+        center.dx + rayLength * math.cos(angle),
+        center.dy + rayLength * math.sin(angle),
+      );
+
+      final paint = Paint()
+        ..color = (i % 2 == 0) ? const Color(0xFFFEF08A).withOpacity(0.85) : Colors.amber.shade400.withOpacity(0.6)
+        ..strokeWidth = isMini ? 1.5 : (i % 2 == 0 ? 3.0 : 2.0)
+        ..strokeCap = StrokeCap.round;
+
+      canvas.drawLine(start, end, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

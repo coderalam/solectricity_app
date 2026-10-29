@@ -19,11 +19,9 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // সেন্সর ভ্যালু
   double _compassHeading = 180.0;
   double _tiltAngle = 25.0;
 
-  // সেন্সর স্ট্যাটাস
   bool _hasCompassSensor = false;
   bool _hasAccelerometer = false;
   bool _hasVibratedSouth = false;
@@ -40,23 +38,27 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
       vsync: this,
       initialIndex: widget.initialTabIndex,
     );
-
-    // হার্ডওয়্যার সেন্সর চালু করা
     _initSensors();
   }
 
+  // সাইডবার থেকে ট্যাব পরিবর্তন হলে তা তাৎক্ষণিক সিঙ্ক করার জন্য
+  @override
+  void didUpdateWidget(covariant SolarToolsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialTabIndex != widget.initialTabIndex) {
+      _tabController.animateTo(widget.initialTabIndex);
+    }
+  }
+
   void _initSensors() {
-    // ১. কম্পাস ম্যাগনেটোমিটার সেন্সর লিসেনার
     if (!kIsWeb) {
       _compassSubscription = FlutterCompass.events?.listen((CompassEvent event) {
         if (event.heading != null && mounted) {
           setState(() {
             _hasCompassSensor = true;
-            // 0 - 360 ডিগ্রিতে নরমাল করা
             _compassHeading = (event.heading! < 0) ? event.heading! + 360 : event.heading!;
           });
 
-          // ঠিক ১৮০° দক্ষিণমুখী হলে ভাইব্রেশন ট্রিগার
           final isSouth = (_compassHeading >= 175 && _compassHeading <= 185);
           if (isSouth && !_hasVibratedSouth) {
             HapticFeedback.mediumImpact();
@@ -68,13 +70,10 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
       });
     }
 
-    // ২. অ্যাক্সিলেরোমিটার (Tilt Angle) লিসেনার
     _accelerometerSubscription = accelerometerEventStream().listen((AccelerometerEvent event) {
       if (mounted) {
-        // ফোনটি প্যানেলের ওপর সমতলে রাখলে মাধ্যাকর্ষণ ভেক্টর দিয়ে টিল্ট কোণ নির্ধারণ
         final double magnitude = math.sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
         if (magnitude > 0) {
-          // অনুভূমিক সমতল থেকে কোণ (Degrees)
           double inclination = math.acos((event.z.abs() / magnitude).clamp(-1.0, 1.0)) * (180.0 / math.pi);
 
           setState(() {
@@ -82,7 +81,6 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
             _tiltAngle = inclination;
           });
 
-          // আদর্শ ২৫° কোণে পৌঁছালে ভাইব্রেশন
           final isIdealAngle = (_tiltAngle >= 24 && _tiltAngle <= 26);
           if (isIdealAngle && !_hasVibratedAngle) {
             HapticFeedback.mediumImpact();
@@ -137,9 +135,6 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
     );
   }
 
-  // ==========================================
-  // ১. রিয়েল-টাইম সোলার কম্পাস
-  // ==========================================
   Widget _buildLiveCompassView() {
     final isSouth = (_compassHeading >= 175 && _compassHeading <= 185);
 
@@ -147,19 +142,13 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
       padding: const EdgeInsets.all(20.0),
       child: Column(
         children: [
-          _buildSensorStatusBadge(
-            isLive: _hasCompassSensor,
-            sensorName: 'ম্যাগনেটোমিটার (কম্পাস)',
-          ),
+          _buildSensorStatusBadge(isLive: _hasCompassSensor, sensorName: 'ম্যাগনেটোমিটার (কম্পাস)'),
           const SizedBox(height: 16),
-
           _buildToolHeader(
             title: 'সোলার কম্পাস (দক্ষিণ দিক নির্ধারণ)',
             description: 'ফোনটি অনুভূমিকভাবে হাতে রেখে ডানে বা বামে ঘোরান। ১৮০° বরাবর আসলে কাঁটা দক্ষিণে স্থির হবে এবং ফোন ভাইব্রেট করবে।',
           ),
           const SizedBox(height: 24),
-
-          // রিয়েল-টাইম ডায়াল
           Stack(
             alignment: Alignment.center,
             children: [
@@ -169,17 +158,10 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 16, offset: const Offset(0, 4)),
-                  ],
-                  border: Border.all(
-                    color: isSouth ? Colors.green.shade600 : Colors.amber.shade700,
-                    width: 4,
-                  ),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 16, offset: const Offset(0, 4))],
+                  border: Border.all(color: isSouth ? Colors.green.shade600 : Colors.amber.shade700, width: 4),
                 ),
               ),
-
-              // ঘূর্ণায়মান কাঁটা
               Transform.rotate(
                 angle: ((360 - _compassHeading) * (math.pi / 180)),
                 child: SizedBox(
@@ -204,8 +186,6 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
                   ),
                 ),
               ),
-
-              // সেন্ট্রাল ডিগ্রি টেক্সট
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
@@ -215,19 +195,12 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
                 ),
                 child: Text(
                   '${_compassHeading.toInt()}°',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: isSouth ? Colors.green.shade700 : Colors.black87,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isSouth ? Colors.green.shade700 : Colors.black87),
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 20),
-
-          // পিসি/ব্রাউজারে টেস্টিং স্লাইডার (মোবাইলে সেন্সর লাইভ কাজ করবে)
           if (!_hasCompassSensor) ...[
             Text('কম্পিউটার টেস্ট স্লাইডার: ${_compassHeading.toInt()}°', style: const TextStyle(fontSize: 11, color: Colors.grey)),
             Slider(
@@ -238,10 +211,7 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
               onChanged: (val) => setState(() => _compassHeading = val),
             ),
           ],
-
           const SizedBox(height: 10),
-
-          // স্ট্যাটাস বক্স
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -269,9 +239,6 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
     );
   }
 
-  // ==========================================
-  // ২. রিয়েল-টাইম সারফেস লেভেলার (২৫° টিল্ট অ্যাঙ্গেল)
-  // ==========================================
   Widget _buildLiveLevelerView() {
     final isIdealAngle = (_tiltAngle >= 24 && _tiltAngle <= 26);
 
@@ -279,19 +246,13 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
       padding: const EdgeInsets.all(20.0),
       child: Column(
         children: [
-          _buildSensorStatusBadge(
-            isLive: _hasAccelerometer,
-            sensorName: 'অ্যাক্সিলেরোমিটার (Gravity Sensor)',
-          ),
+          _buildSensorStatusBadge(isLive: _hasAccelerometer, sensorName: 'অ্যাক্সিলেরোমিটার (Gravity Sensor)'),
           const SizedBox(height: 16),
-
           _buildToolHeader(
             title: 'লাইভ সারফেস লেভেলার (২৫° টিল্ট অ্যাঙ্গেল)',
             description: 'ফোনটি সোলার প্যানেল বা ফ্রেমের ওপর সমতলে শুইয়ে রাখুন। এটি রিয়েল-টাইমে পৃষ্ঠের খাঁড়া কোণ পরিমাপ করবে।',
           ),
           const SizedBox(height: 24),
-
-          // ভিজ্যুয়াল লাইভ বাবল লেভেলার মিটার
           Container(
             height: 150,
             width: double.infinity,
@@ -324,31 +285,20 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
                     const SizedBox(height: 20),
                     Text(
                       '${_tiltAngle.toStringAsFixed(1)}°',
-                      style: TextStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.bold,
-                        color: isIdealAngle ? Colors.green.shade700 : Colors.amber.shade900,
-                      ),
+                      style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold, color: isIdealAngle ? Colors.green.shade700 : Colors.amber.shade900),
                     ),
                     Text(
                       isIdealAngle
                           ? '🎯 নিখুঁত ২৫° টিল্ট কোণ অর্জিত!'
                           : (_tiltAngle < 24 ? 'প্যানেল আরও খাড়া করুন (বর্তমানে খুব নিচু)' : 'প্যানেল আরও শোয়ান (বর্তমানে খুব খাড়া)'),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isIdealAngle ? Colors.green.shade800 : Colors.grey.shade700,
-                      ),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isIdealAngle ? Colors.green.shade800 : Colors.grey.shade700),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-
           const SizedBox(height: 20),
-
-          // ব্রাউজার টেস্টিং স্লাইডার
           if (!_hasAccelerometer) ...[
             Text('কম্পিউটার টেস্ট স্লাইডার: ${_tiltAngle.toStringAsFixed(1)}°', style: const TextStyle(fontSize: 11, color: Colors.grey)),
             Slider(
@@ -359,9 +309,7 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
               onChanged: (val) => setState(() => _tiltAngle = val),
             ),
           ],
-
           const SizedBox(height: 10),
-
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -388,9 +336,6 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
     );
   }
 
-  // ==========================================
-  // ৩. রক্ষণাবেক্ষণ ও স্থাপন গাইড
-  // ==========================================
   Widget _buildMaintenanceGuideView() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
@@ -402,7 +347,6 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
             description: 'বাংলাদেশ বিজ্ঞান ও শিল্প গবেষণা পরিষদ (BCSIR)-এর অনুমোদিত কারিগরি ব্যবহারবিধি।',
           ),
           const SizedBox(height: 16),
-
           _buildGuideCard(
             category: '১. সোলার প্যানেল স্থাপন ও যত্ন',
             icon: Icons.solar_power,
@@ -415,7 +359,6 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
             ],
           ),
           const SizedBox(height: 14),
-
           _buildGuideCard(
             category: '২. ব্যাটারি স্থাপন ও রক্ষণাবেক্ষণ',
             icon: Icons.battery_charging_full,
@@ -428,7 +371,6 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
             ],
           ),
           const SizedBox(height: 14),
-
           _buildGuideCard(
             category: '৩. চার্জ কন্ট্রোলার ও ইনভার্টার',
             icon: Icons.settings_input_component,
@@ -445,7 +387,6 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
     );
   }
 
-  // লাইভ সেন্সর স্ট্যাটাস ব্যাজ
   Widget _buildSensorStatusBadge({required bool isLive, required String sensorName}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -461,11 +402,7 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
           const SizedBox(width: 8),
           Text(
             isLive ? '🔴 $sensorName: লাইভ সক্রিয়' : '💻 ওয়েব প্রিভিউ মোড (মোবাইলে লাইভ সেন্সর চলবে)',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: isLive ? Colors.green.shade800 : Colors.blue.shade800,
-            ),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isLive ? Colors.green.shade800 : Colors.blue.shade800),
           ),
         ],
       ),
@@ -492,12 +429,7 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
     );
   }
 
-  Widget _buildGuideCard({
-    required String category,
-    required IconData icon,
-    required Color color,
-    required List<String> points,
-  }) {
+  Widget _buildGuideCard({required String category, required IconData icon, required Color color, required List<String> points}) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -508,11 +440,7 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: color.withOpacity(0.12),
-                  child: Icon(icon, color: color, size: 18),
-                ),
+                CircleAvatar(radius: 16, backgroundColor: color.withOpacity(0.12), child: Icon(icon, color: color, size: 18)),
                 const SizedBox(width: 10),
                 Text(category, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1E293B))),
               ],
@@ -526,9 +454,7 @@ class _SolarToolsScreenState extends State<SolarToolsScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('• ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.blueGrey)),
-                      Expanded(
-                        child: Text(p, style: const TextStyle(fontSize: 12.5, color: Color(0xFF334155), height: 1.4)),
-                      ),
+                      Expanded(child: Text(p, style: const TextStyle(fontSize: 12.5, color: Color(0xFF334155), height: 1.4))),
                     ],
                   ),
                 );
