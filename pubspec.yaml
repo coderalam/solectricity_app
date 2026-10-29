@@ -2,7 +2,8 @@ name: solectricity_app
 description: "A Solar Electricity Calculator app based on BCSIR and SREDA formulas."
 publish_to: 'none'
 
-version: 1.0.0+1
+# নতুন আপডেটেড ভার্সন কোড
+version: 1.0.1+2
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

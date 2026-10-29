@@ -6,6 +6,7 @@ import 'land_calculator_screen.dart';
 import 'cost_calculator_screen.dart';
 import 'financial_calculator_screen.dart';
 import 'solar_tools_screen.dart';
+import 'contact_screen.dart';
 
 class MainShellScreen extends StatefulWidget {
   const MainShellScreen({super.key});
@@ -74,13 +75,16 @@ class _MainShellScreenState extends State<MainShellScreen> {
         return const CostCalculatorScreen();
       case 5:
         return const FinancialCalculatorScreen();
-      // ২ নম্বর সমস্যার সমাধান: সরাসরি নির্দিষ্ট ট্যাব ওপেন করার নিখুঁত কি (Key)
       case 6:
         return const SolarToolsScreen(key: ValueKey('compass'), initialTabIndex: 0);
       case 7:
         return const SolarToolsScreen(key: ValueKey('leveler'), initialTabIndex: 1);
       case 8:
         return const SolarToolsScreen(key: ValueKey('guide'), initialTabIndex: 2);
+      case 9:
+        return const ContactScreen(key: ValueKey('contact'), initialTab: 0); // যোগাযোগ
+      case 10:
+        return const ContactScreen(key: ValueKey('website'), initialTab: 1); // বিসিএসআইআর ওয়েব
       default:
         return _buildDashboardContent();
     }
@@ -93,7 +97,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ৩ নম্বর পরিবর্তন: লোগো ও ব্র্যান্ডিং সম্পূর্ণ গ্লোবাল ক্লিকেবল লিংক (হোমে নিয়ে যাবে)
+          // লোগো ও ব্র্যান্ডিং (গ্লোবাল হোম লিংক)
           InkWell(
             onTap: () => _onMenuTapped(0),
             child: Container(
@@ -113,7 +117,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
                       color: Colors.white.withOpacity(0.25),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    // অ্যানিমেটেড সূর্য ক্ষুদ্র সংস্করণে
                     child: const SizedBox(
                       width: 24,
                       height: 24,
@@ -141,13 +144,13 @@ class _MainShellScreenState extends State<MainShellScreen> {
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
 
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: ListView(
+                padding: EdgeInsets.zero,
                 children: [
                   _buildSectionHeader('প্রধান গণনা'),
                   _CompactMenuTile(
@@ -187,9 +190,9 @@ class _MainShellScreenState extends State<MainShellScreen> {
                     onTap: () => _onMenuTapped(5),
                   ),
 
-                  const Divider(height: 14, thickness: 0.8, color: Color(0xFFE2E8F0)),
+                  const Divider(height: 12, thickness: 0.8, color: Color(0xFFE2E8F0)),
 
-                  _buildSectionHeader('সহায়ক টুলস ও গাইড'),
+                  _buildSectionHeader('সহায়ক টুলস'),
                   _CompactMenuTile(
                     icon: Icons.compass_calibration_rounded,
                     title: 'সোলার কম্পাস (দক্ষিণ)',
@@ -209,28 +212,43 @@ class _MainShellScreenState extends State<MainShellScreen> {
                     onTap: () => _onMenuTapped(8),
                   ),
 
-                  const Spacer(),
+                  const Divider(height: 12, thickness: 0.8, color: Color(0xFFE2E8F0)),
 
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(Icons.verified_rounded, color: Colors.blue, size: 14),
-                        SizedBox(width: 6),
-                        Text(
-                          'স্রেডা ও বিসিএসআইআর মানদণ্ড',
-                          style: TextStyle(fontSize: 10, color: Color(0xFF475569), fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
+                  _buildSectionHeader('যোগাযোগ ও তথ্য'),
+                  _CompactMenuTile(
+                    icon: Icons.email_outlined,
+                    title: 'যোগাযোগ',
+                    isSelected: _selectedIndex == 9,
+                    onTap: () => _onMenuTapped(9),
                   ),
-                  const SizedBox(height: 8),
+                  _CompactMenuTile(
+                    icon: Icons.language_rounded,
+                    title: 'বিসিএসআইআর ওয়েব',
+                    isSelected: _selectedIndex == 10,
+                    onTap: () => _onMenuTapped(10),
+                  ),
+
+                  const SizedBox(height: 10),
                 ],
               ),
+            ),
+          ),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF1F5F9),
+              border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+            ),
+            child: Row(
+              children: const [
+                Icon(Icons.verified_rounded, color: Colors.blue, size: 14),
+                SizedBox(width: 6),
+                Text(
+                  'স্রেডা ও বিসিএসআইআর মানদণ্ড',
+                  style: TextStyle(fontSize: 10, color: Color(0xFF475569), fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
           ),
         ],
@@ -240,7 +258,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8, top: 4, bottom: 4),
+      padding: const EdgeInsets.only(left: 8, top: 4, bottom: 2),
       child: Text(
         title.toUpperCase(),
         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8), letterSpacing: 0.5),
@@ -322,10 +340,9 @@ class _MainShellScreenState extends State<MainShellScreen> {
     );
   }
 
-  // ১ নম্বর পরিবর্তন: ব্যানারে জীবন্ত প্রখর ফিউশন সূর্যের অ্যানিমেশন + গ্লোবাল ক্লিকেবল
   Widget _buildHeroBanner() {
     return InkWell(
-      onTap: () => _onMenuTapped(0), // ক্লিক করলে হোমে রিফ্রেশ হবে
+      onTap: () => _onMenuTapped(0),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         width: double.infinity,
@@ -360,8 +377,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
               ),
             ),
             const SizedBox(width: 14),
-
-            // জীবন্ত ফিউশন বিক্রিয়ার অবিরাম ঘূর্ণায়মান ও প্রজ্বলিত সূর্য
             const SolarFusionSun(size: 70),
           ],
         ),
@@ -633,6 +648,23 @@ class _MainShellScreenState extends State<MainShellScreen> {
               _onMenuTapped(8);
             },
           ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.email_outlined, color: Colors.amber),
+            title: const Text('যোগাযোগ'),
+            onTap: () {
+              Navigator.pop(context);
+              _onMenuTapped(9);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.language_rounded, color: Colors.green),
+            title: const Text('বিসিএসআইআর ওয়েব'),
+            onTap: () {
+              Navigator.pop(context);
+              _onMenuTapped(10);
+            },
+          ),
         ],
       ),
     );
@@ -714,9 +746,7 @@ class _CompactMenuTileState extends State<_CompactMenuTile> {
   }
 }
 
-// =========================================================================
-// ১ নম্বর মূল আকর্ষণ: প্রখর রৌদ্রের ফিউশন বিক্রিয়ার অবিরাম ধীরগতির সূর্য
-// =========================================================================
+/// ফিউশন সূর্যের অ্যানিমেশন উইজেট
 class SolarFusionSun extends StatefulWidget {
   final double size;
   final bool isMini;
@@ -733,7 +763,6 @@ class _SolarFusionSunState extends State<SolarFusionSun> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    // অবিরাম ধীর গতিতে ৩০ সেকেন্ডে একটি পূর্ণ ঘূর্ণন সম্পন্ন হবে
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 28),
@@ -751,7 +780,6 @@ class _SolarFusionSunState extends State<SolarFusionSun> with SingleTickerProvid
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        // সূক্ষ্ম স্পন্দন (Breathing pulse - ১.০০ থেকে ১.০৬)
         final pulse = 1.0 + 0.06 * math.sin(_controller.value * 2 * math.pi * 3);
 
         return Transform.scale(
@@ -762,7 +790,6 @@ class _SolarFusionSunState extends State<SolarFusionSun> with SingleTickerProvid
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // ১. বাহ্যিক প্লাজমা আলো ছড়ানো রশ্মি (ধীর ঘূর্ণায়মান)
                 Transform.rotate(
                   angle: _controller.value * 2 * math.pi,
                   child: CustomPaint(
@@ -770,8 +797,6 @@ class _SolarFusionSunState extends State<SolarFusionSun> with SingleTickerProvid
                     painter: _SolarRaysPainter(isMini: widget.isMini),
                   ),
                 ),
-
-                // ২. বিপরীত দিকে ঘূর্ণায়মান অভ্যন্তরীণ করোনা মেঘ
                 Transform.rotate(
                   angle: -_controller.value * 2 * math.pi * 0.5,
                   child: Container(
@@ -790,8 +815,6 @@ class _SolarFusionSunState extends State<SolarFusionSun> with SingleTickerProvid
                     ),
                   ),
                 ),
-
-                // ৩. কেন্দ্রীয় উজ্জ্বল পারমাণবিক ফিউশন কোর (উজ্জ্বল সাদা-সোনালি আলো)
                 Container(
                   width: widget.size * 0.45,
                   height: widget.size * 0.45,
@@ -800,9 +823,9 @@ class _SolarFusionSunState extends State<SolarFusionSun> with SingleTickerProvid
                     gradient: const RadialGradient(
                       colors: [
                         Colors.white,
-                        Color(0xFFFEF08A), // লেমন গোল্ড
-                        Color(0xFFF59E0B), // অ্যাম্বার
-                        Color(0xFFEA580C), // অরেঞ্জ প্লাজমা
+                        Color(0xFFFEF08A),
+                        Color(0xFFF59E0B),
+                        Color(0xFFEA580C),
                       ],
                       stops: [0.15, 0.45, 0.8, 1.0],
                     ),
@@ -829,7 +852,6 @@ class _SolarFusionSunState extends State<SolarFusionSun> with SingleTickerProvid
   }
 }
 
-/// সূর্যের বহিরাংশের ফিউশন রশ্মি ও প্লাজমা আঁকার কাস্টম পেইন্টার
 class _SolarRaysPainter extends CustomPainter {
   final bool isMini;
   _SolarRaysPainter({this.isMini = false});
@@ -837,7 +859,7 @@ class _SolarRaysPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final count = isMini ? 8 : 14; // রশ্মির সংখ্যা
+    final count = isMini ? 8 : 14;
     final radius = size.width / 2;
 
     for (int i = 0; i < count; i++) {
