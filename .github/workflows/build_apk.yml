@@ -1,6 +1,6 @@
-name: Build Solectricity App APK
+name: Build Solectricity App (APK and AAB)
 
-# main বা master ব্রাঞ্চে কোড পুশ করলে কিংবা ম্যানুয়ালি রান করলে বিল্ড শুরু হবে
+# main বা master ব্রাঞ্চে কোড পুশ করলে এটি চালু হবে
 on:
   push:
     branches: [ main, master ]
@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ১. রিপোজিটরি থেকে কোড চেকআউট করা
+      # ১. রিপোজিটরি থেকে কোড নামানো
       - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      # ২. জাভা ১৭ (JDK 17) সেটআপ করা
+      # ২. জাভা ১৭ সেটআপ করা
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
@@ -28,17 +28,28 @@ jobs:
         with:
           channel: 'stable'
 
-      # ৪. প্যাকেজ ডিপেনডেন্সি (sensors_plus, flutter_compass ইত্যাদি) ডাউনলোড করা
+      # ৪. প্যাকেজ ডাউনলোড করা
       - name: Install Dependencies
         run: flutter pub get
 
-      # ৫. রিলিজ মোডে Android APK ফাইল বিল্ড করা
+      # ৫. ফোনে চালানোর জন্য Release APK তৈরি করা
       - name: Build Android Release APK
         run: flutter build apk --release
 
-      # ৬. তৈরি হওয়া APK ফাইলটি ডাউনলোডের জন্য আপলোড করা
+      # ৬. গুগল প্লে-স্টোরের জন্য Release AAB তৈরি করা
+      - name: Build Android App Bundle (AAB)
+        run: flutter build appbundle --release
+
+      # ৭. তৈরি হওয়া APK ফাইলটি আপলোড করা (Artifact 1)
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: solectricity-v1.0.1-release-apk
+          name: solectricity-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      # ৮. তৈরি হওয়া AAB ফাইলটি আপলোড করা (Artifact 2)
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: solectricity-google-play-aab
+          path: build/app/outputs/bundle/release/app-release.aab
